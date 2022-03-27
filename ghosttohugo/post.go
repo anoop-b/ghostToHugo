@@ -22,7 +22,7 @@ type post struct {
 	MobileDoc       string          `json:"mobiledoc,omitempty"`
 	Image           string          `json:"image"`
 	FeaturedImage   string          `json:"feature_image,omitempty"`
-	Page            json.RawMessage `json:"page"`
+	Type            string          `json:"type"`
 	Status          string          `json:"status"`
 	MetaDescription string          `json:"meta_description"`
 	AuthorID        json.RawMessage `json:"author_id"`
@@ -41,7 +41,11 @@ func (p post) isDraft() bool {
 }
 
 func (p post) isPage() bool {
-	return parseBool(p.Page)
+	return strings.ToLower(p.Type) == "page"
+}
+
+func (p post) isEmailed() bool {
+	return strings.ToLower(p.Status) == "sent"
 }
 
 func (p post) frontMatter() map[string]interface{} {
@@ -81,9 +85,19 @@ func (c *Converter) writePost(p post) error {
 	path := filepath.Join(c.path, "content")
 	switch p.isPage() {
 	case true:
-		path = filepath.Join(path, p.Slug+".md")
+		if p.isDraft() {
+			path = filepath.Join(path, "drafts", p.Slug+".md")
+		} else {
+			path = filepath.Join(path, p.Slug+".md")
+		}
 	case false:
-		path = filepath.Join(path, "post", p.Slug+".md")
+		if p.isEmailed() {
+			path = filepath.Join(path, "email", p.Slug+".md")
+		} else if p.isDraft() {
+			path = filepath.Join(path, "post", "drafts", p.Slug+".md")
+		} else {
+			path = filepath.Join(path, "post", p.Slug+".md")
+		}
 	}
 
 	buf := bytes.NewBuffer(nil)
@@ -131,7 +145,9 @@ func (p post) mobiledocMarkdown() string {
 		WithCard("embed", cardEmbed).
 		WithCard("gallery", cardGallery).
 		WithCard("html", cardHTML).
-		WithCard("bookmark", cardBookmark)
+		WithCard("bookmark", cardBookmark).
+		WithCard("email", cardMarkdown).
+		WithCard("email-cta", cardMarkdown)
 
 	err := md.Render(&buf)
 	if err != nil {
