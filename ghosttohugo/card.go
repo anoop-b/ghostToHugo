@@ -139,7 +139,7 @@ func cardGallery(payload interface{}) string {
 	var buf bytes.Buffer
 	buf.WriteString("{{< gallery")
 	if caption, ok := m["caption"]; ok {
-		buf.WriteString(fmt.Sprintf(" caption=\"%s\"", caption.(string)))
+		buf.WriteString(fmt.Sprintf(" caption=`%s`", caption.(string)))
 	}
 	buf.WriteString(" >}}\n")
 
@@ -199,7 +199,7 @@ func cardImage(payload interface{}) string {
 
 	if caption, ok := m["caption"]; ok {
 		return fmt.Sprintf(
-			"{{< figure src=\"%s\" caption=\"%s\" >}}\n",
+			"{{< figure src=\"%s\" caption=`%s` >}}\n",
 			stripContentFolder(src.(string)),
 			caption,
 		)
