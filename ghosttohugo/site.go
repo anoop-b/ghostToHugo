@@ -138,7 +138,7 @@ var galleryData = []byte(`<figure class="kg-gallery-card kg-width-wide">
 
 var galleryImgData = []byte(`
   <div class="kg-gallery-image">
-    <img src="{{ .Get "src" }}" width="{{ .Get "width" }}" height="{{ .Get "height" }}">
+    <img src="{{ .Get "src" }}" width="100%" height="auto">
   </div>
 {{ if mod .Ordinal 3 | eq 2 }}
 </div>
